@@ -4,7 +4,15 @@ Geração, Leitura e Validação de QR Code no padrão BR Code para o Pix
 # TED ou DOC? Eu vou de Pix!
 
 ## Instruções
-Para usar é bem simples, basta copiar e colar o conteúdo do QR Code e clicar em "Validar", que o resultado será exibido e se houver alguma inconsistência, será informado qual o problema identificado.
+Para usar é bem simples
+
+### Ta na mão, só usar
+
+### Uso local
+Se preferir, pode usar localmente:
+1) Baixe o arquivo "https://github.com/CharlesMendes/brcode/blob/main/pix_validar_brcode_estatico.html"
+2) Abra o arquivo "pix_validar_brcode_estatico.html" em qualquer navegador (eu gosto do Chrome ❤❤❤)
+3) Basta copiar e colar o conteúdo do QR Code e clicar em "Validar", que o resultado será exibido e se houver alguma inconsistência, será informado qual o problema identificado.
 
 ![alt text](img/tuto_1.png)
 ![alt text](img/tuto_2.png)
