@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+    <title>Pix - Validar BR Code</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+    <style>
+        body,h1,h2,h3,h4,h5,h6 {font-family: "Raleway", Arial, Helvetica, sans-serif}
+    </style>
+    
+    <body class="w3-border-left w3-border-right">
+
+        <!-- !PAGE CONTENT! -->
+        <div class="w3-sidebar w3-light-grey w3-collapse w3-top">
+
+            <div class="w3-container w3-display-container w3-padding-16">
+                
+                <h2>
+                    <img src="https://www.paymee.com.br/wp-content/uploads/2018/07/original.png" width="100px" />
+                    <img src="https://www.bcb.gov.br/content/estabilidadefinanceira/piximg/logo_pix.png" width="200px" />
+                    Validar - BR Code</h2>
+                <hr>
+                    <p><label><i class="fa fa-calendar-check-o"></i> QR Code Estático</label></p>
+                    <textarea class="w3-input w3-border" rows="4" cols="50" placeholder="Pix Copia e Cola" id="qrcode">00020101021126650014BR.GOV.BCB.PIX0132guilherme@guilhermebranco.com.br0207InfoAdd5204000053039865406123.995802BR5925Guilherme Branco Stracini6009São Paulo61080317701062530515RP12345678-201950300017BR.GOV.BCB.BRCODE01051.0.06304F7AB</textarea>
+                    <input type="text" id="subqrcode" >
+                    <input type="text" id="subqrcode_payment" >
+                    <p><button class="w3-button w3-green" onclick="validar()">Validar</button></p>
+            </div>
+            <div class="w3-bar-block w3-main w3-white">
+                <center>versão v12.11.2020.(build 001) - by <a href="mailto:contato@charlesmendes.com">Charles Mendes</a> - (Desenvolvimento Não Oficial do Banco Original)</center>
+            </div>
+
+        <!-- End page content -->
+        </div>
+
+        <!-- Result Modal -->
+        <div id="result" class="w3-modal">
+            <div class="w3-modal-content w3-animate-zoom w3-padding-large">
+                <div class="w3-container w3-white w3-center">
+                    <i onclick='$("#result").css("display","none");' class="fa fa-remove w3-button w3-xlarge w3-right w3-transparent"></i>
+                    <h2 id="resultado_titulo" class="w3-wide">Resultado: <span id="resultado"></span></h2>
+                    <sup><b>(M) = Campo Mandatório / (O) = Campo Opcional</b></sup>
+                    <textarea readonly class="w3-input w3-border" rows="20" cols="50" id="qrcode_validado"></textarea>
+                    <br />
+                    <button type="button" class="w3-button w3-padding-large w3-green w3-margin-bottom" onclick='$("#result").css("display","none");'>Fechar</button>
+                </div>
+            </div>
+        </div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+        <script>
+            // DOCUMENTAÇÃO:
+            // https://www.bcb.gov.br/content/estabilidadefinanceira/SiteAssets/Manual%20do%20BR%20Code.pdf
+            // https://www.bcb.gov.br/content/estabilidadefinanceira/pix/Regulamento_Pix/II-ManualdePadroesparaIniciacaodoPix-versao2-1.pdf
+
+            // CONSTANT
+            const ID_PAYLOAD_FORMAT_INDICATOR = "00"; // (M) Payload Format Indicator
+            const DS_PAYLOAD_FORMAT_INDICATOR = "(M) Payload Format Indicator";
+            const ID_POINT_OF_INITIATION_METHOD = "01"; // (O) Point of Initiation Method
+            const DS_POINT_OF_INITIATION_METHOD = "(O) Point of Initiation Method";
+            const ID_MERCHANT_ACCOUNT_INFORMATION = "26"; // (M) 2-51 Merchant Account Information
+            const DS_MERCHANT_ACCOUNT_INFORMATION = "(M) Merchant Account Information Pix";
+
+            //SUB MERCHANT ACCOUNT INFORMATION
+            const ID_SUBMERCHANT_GUI = "00"; // (M) GUI ARRANJO
+            const DS_SUBMERCHANT_GUI = "(M) GUI Arranjo";
+            const ID_SUBMERCHANT_CHAVE = "01"; // (M) Chave Pix
+            const DS_SUBMERCHANT_CHAVE = "(M) Chave Pix";
+
+            const ID_MERCHANT_CATEGORY_CODE = "52"; // (M) Merchant Category Code
+            const DS_MERCHANT_CATEGORY_CODE = "(M) Merchant Category Code";
+            const ID_TRANSACTION_CURRENCY = "53"; // (M) Transaction Currency
+            const DS_TRANSACTION_CURRENCY = "(M) Transaction Currency";
+            const ID_TRANSACTION_AMOUNT = "54"; // (C) Transaction Amount
+            const DS_TRANSACTION_AMOUNT = "(C) Transaction Amount";
+            const ID_TIP_OR_CONVENIENCE_INDICATOR = "55"; // (O) Tip or Convenience Indicator
+            const DS_TIP_OR_CONVENIENCE_INDICATOR = "(O) Tip or Convenience Indicator";
+            const ID_VALUE_OF_CONVENIENCE_FEE_FIXED = "56"; // (C) Value of Convenience Fee Fixed
+            const DS_VALUE_OF_CONVENIENCE_FEE_FIXED = "(C) Value of Convenience Fee Fixed";
+            const ID_VALUE_OF_CONVENIENCE_FEE_PERCENTAGE = "57"; // (C) Value of Convenience Fee Percentage
+            const DS_VALUE_OF_CONVENIENCE_FEE_PERCENTAGE = "(C) Value of Convenience Fee Percentage";
+            const ID_COUNTRY_CODE = "58"; // (M) Country Code
+            const DS_COUNTRY_CODE = "(M) Country Code";
+            const ID_MERCHANT_NAME = "59"; // (M) Merchant Name
+            const DS_MERCHANT_NAME = "(M) Merchant Name";
+            const ID_MERCHANT_CITY = "60"; // (M) Merchant City
+            const DS_MERCHANT_CITY = "(M) Merchant City";
+            const ID_POSTAL_CODE = "61"; // (O) Postal Code
+            const DS_POSTAL_CODE = "(O) Postal Code";
+            const ID_ADDITIONAL_DATA_FIELD_TEMPLATE = "62"; // (O) Additional Data Field Template
+            const DS_ADDITIONAL_DATA_FIELD_TEMPLATE = "(M) Additional Data Field Template";
+
+            //SUB ADDITIONAL DATA FIELD TEMPLATE
+            const ID_SUBADDITIONAL_REFERENCE_LABEL = "05"; // (M) ID DA TRANSAÇÃO TRX
+            const DS_SUBADDITIONAL_REFERENCE_LABEL = "(M) ID DA TRANSAÇÃO TRX";
+            const ID_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM = "50"; // (M) PAYMENT SYSTEM TEMPLATE
+            const DS_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM = "(M) PAYMENT SYSTEM TEMPLATE";
+            const ID_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_GUI = "00"; // (M) GUI PAYMENT SYSTEM TEMPLATE
+            const DS_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_GUI = "(M) GUI PAYMENT SYSTEM TEMPLATE";
+            const ID_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_VERSAO = "01"; // (M) VERSAO PAYMENT SYSTEM TEMPLATE
+            const DS_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_VERSAO = "(M) VERSAO PAYMENT SYSTEM TEMPLATE";
+            
+            const ID_CRC = "63"; // (M) CRC
+            const DS_CRC = "(M) CRC";
+            
+            // Decode
+            var initial_value = 0;
+            var initial_value_sub = 0;
+            var initial_value_payment_sub = 0;
+            var initial_size = 2;
+            
+            var valor = "";
+            var tam = "";
+            var mapConsumers = [];
+            var mapConsumers_sub = [];
+            var mapConsumers_payment_sub = [];
+            var qrcode_valor = "";
+            var erros = 0;
+
+            function clear() {
+
+                initial_value = 0;
+                initial_value_sub = 0;
+                initial_value_payment_sub = 0;
+                initial_size = 2;
+                
+                valor = "";
+                tam = "";
+                mapConsumers = [];
+                mapConsumers_sub = [];
+                mapConsumers_payment_sub = [];
+                qrcode_valor = "";
+                erros = 0;
+            }
+
+            function validar() {
+                
+                clear();
+                $("#result").css("display","block");
+                $("#qrcode_validado").text(MerchantPresentedMode());
+
+                if (erros > 0)
+                {
+                    $("#resultado_titulo").removeClass("w3-green");
+                    $("#resultado_titulo").addClass("w3-red");
+                    $("#resultado").text("INVÁLIDO");
+                }
+                else
+                {
+                    $("#resultado_titulo").removeClass("w3-red");
+                    $("#resultado_titulo").addClass("w3-green");
+                    $("#resultado").text("SUCESSO");
+                }
+            }
+
+            function MerchantPresentedMode() {
+
+                /* -------------------------------------------------------------- */
+                consumerMessage(ID_PAYLOAD_FORMAT_INDICATOR, DS_PAYLOAD_FORMAT_INDICATOR, true);
+                consumerMessage(ID_POINT_OF_INITIATION_METHOD, DS_POINT_OF_INITIATION_METHOD, false);
+                consumerMessage(ID_MERCHANT_ACCOUNT_INFORMATION, DS_MERCHANT_ACCOUNT_INFORMATION, true);
+                consumerMessage(ID_MERCHANT_CATEGORY_CODE, DS_MERCHANT_CATEGORY_CODE, true);
+                consumerMessage(ID_TRANSACTION_CURRENCY, DS_TRANSACTION_CURRENCY, true);
+                consumerMessage(ID_TRANSACTION_AMOUNT, DS_TRANSACTION_AMOUNT, false);
+                consumerMessage(ID_COUNTRY_CODE, DS_COUNTRY_CODE, true);
+                consumerMessage(ID_MERCHANT_NAME, DS_MERCHANT_NAME, true);
+                consumerMessage(ID_MERCHANT_CITY, DS_MERCHANT_CITY, true);
+                consumerMessage(ID_POSTAL_CODE, DS_POSTAL_CODE, false);
+                consumerMessage(ID_ADDITIONAL_DATA_FIELD_TEMPLATE, DS_ADDITIONAL_DATA_FIELD_TEMPLATE, true);
+                consumerMessage(ID_CRC, DS_CRC, true);
+                /* -------------------------------------------------------------- */
+
+                return JSON.stringify(mapConsumers, null, 4);
+            }
+
+            function consumer(initial, size, sub) {
+                
+                if (sub == 1)
+                {
+                    return $("#qrcode").val().substr(initial, size);
+                }
+                else if (sub == 2)
+                {
+                    return $("#subqrcode").val().substr(initial, size);
+                }
+                else
+                {
+                    return $("#subqrcode_payment").val().substr(initial, size);
+                }
+            }
+            
+            function formatMessage(descricao, valor) {
+
+                return descricao + ": [" + valor + "]";
+
+            }
+
+            function consumerMessage(identificator, description, mandatory) {
+
+                var item = {};
+                valor = consumer(initial_value, initial_size, 1);
+                
+                if (identificator == valor)
+                {
+                    initial_value += initial_size;
+                    tam = parseFloat(consumer(initial_value, initial_size, 1));
+                    
+                    initial_value += initial_size;
+                    valor = consumer(initial_value, tam, 1);
+                    initial_value += tam;
+                    
+                    item ["_id"] = identificator;
+                    item ["descrição"] = description;
+                    
+                    if (ID_MERCHANT_ACCOUNT_INFORMATION == identificator) 
+                    {
+                        $("#subqrcode").val(valor);
+                        consumerSubMessage(ID_SUBMERCHANT_GUI, DS_SUBMERCHANT_GUI, true);
+                        consumerSubMessage(ID_SUBMERCHANT_CHAVE, DS_SUBMERCHANT_CHAVE, true);
+
+                        item ["valor"] = mapConsumers_sub;
+
+                        initial_value_sub = 0;
+                        mapConsumers_sub = [];
+                    }
+                    else if (ID_ADDITIONAL_DATA_FIELD_TEMPLATE == identificator) 
+                    {
+                        $("#subqrcode").val(valor);
+                        consumerSubMessage(ID_SUBADDITIONAL_REFERENCE_LABEL, DS_SUBADDITIONAL_REFERENCE_LABEL, true);
+                        consumerSubMessage(ID_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM, DS_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM, true);
+
+                        item ["valor"] = mapConsumers_sub;
+
+                        mapConsumers_sub = [];
+                    }
+                    else
+                    {
+                        item ["valor"] = valor;
+                    }
+                                        
+                    mapConsumers.push(item);
+                }
+                else {
+                    if (mandatory == true)
+                    {
+                        item ["_id"] = identificator;
+                        item ["descrição"] = description;
+                        item ["valor"] = "**** ERRO NESSE CAMPO **** => CAMPO INVÁLIDO OU NÃO INFORMADO";
+                        erros++;
+                        mapConsumers.push(item);
+                    }
+                    else
+                    {
+                        item ["_id"] = identificator;
+                        item ["descrição"] = description;
+                        item ["valor"] = "Campo Opcional, não preechido";
+                        mapConsumers.push(item);
+                    }
+                }
+            }
+
+            function consumerSubMessage(identificator, description, mandatory) {
+
+                var item = {};
+                valor = consumer(initial_value_sub, initial_size, 2);
+
+                if (identificator == valor)
+                {
+                    initial_value_sub += initial_size;
+                    tam = parseFloat(consumer(initial_value_sub, initial_size, 2));
+                    
+                    initial_value_sub += initial_size;
+                    valor = consumer(initial_value_sub, tam, 2);
+                    initial_value_sub += tam;
+                    
+                    item ["_id"] = identificator;
+                    item ["descrição"] = description;
+
+                    if (ID_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM == identificator) 
+                    {
+                        $("#subqrcode_payment").val(valor);
+                        consumerSubPaymentMessage(ID_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_GUI, DS_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_GUI, true);
+                        consumerSubPaymentMessage(ID_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_VERSAO, DS_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_VERSAO, true);
+
+                        item ["valor"] = mapConsumers_payment_sub;
+
+                        initial_value_payment_sub = 0;
+                        mapConsumers_payment_sub = [];
+                    }
+                    else
+                    {
+                        item ["valor"] = valor;
+                    }
+                                       
+                    mapConsumers_sub.push(item);
+                }
+                else {
+                    if (mandatory == true)
+                    {
+                        item ["_id"] = identificator;
+                        item ["descrição"] = description;
+                        item ["valor"] = "**** ERRO NESSE CAMPO **** => CAMPO INVÁLIDO OU NÃO INFORMADO";
+                        erros++;
+                        mapConsumers_sub.push(item);
+                    }
+                    else
+                    {
+                        item ["_id"] = identificator;
+                        item ["descrição"] = description;
+                        item ["valor"] = "Campo Opcional, não preechido";
+                        mapConsumers_sub.push(item);
+                    }
+                }
+            }
+
+            function consumerSubPaymentMessage(identificator, description, mandatory) {
+
+                var item = {};
+                valor = consumer(initial_value_payment_sub, initial_size, 3);
+
+                if (identificator == valor)
+                {
+                    initial_value_payment_sub += initial_size;
+                    tam = parseFloat(consumer(initial_value_payment_sub, initial_size, 3));
+                    
+                    initial_value_payment_sub += initial_size;
+                    valor = consumer(initial_value_payment_sub, tam, 3);
+                    initial_value_payment_sub += tam;
+                    
+                    item ["_id"] = identificator;
+                    item ["descrição"] = description;
+                    item ["valor"] = valor;
+                                    
+                    mapConsumers_payment_sub.push(item);
+                }
+                else {
+                    if (mandatory == true)
+                    {
+                        item ["_id"] = identificator;
+                        item ["descrição"] = description;
+                        item ["valor"] = "**** ERRO NESSE CAMPO **** => CAMPO INVÁLIDO OU NÃO INFORMADO";
+                        erros++;
+                        mapConsumers_payment_sub.push(item);
+                    }
+                    else
+                    {
+                        item ["_id"] = identificator;
+                        item ["descrição"] = description;
+                        item ["valor"] = "Campo Opcional, não preechido";
+                        mapConsumers_payment_sub.push(item);
+                    }
+                }
+            }
+
+        </script>
+
+    </body>
+</html>
