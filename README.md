@@ -5,6 +5,7 @@ Geração, Leitura e Validação de QR Code no padrão BR Code para o Pix
 
 ## Instruções
 Para usar é bem simples e tem um montão de exemplo de QR Codes para você testar, aqui: https://github.com/CharlesMendes/brcode/blob/main/Exemplos_QR_Codes.txt
+Ah, é possível também ler um QR Code pela camera do Celular ou carregar a imagem salva direto do computador. SENSACIONAL, não?
 
 ### Ta na mão, só usar
 Skin in the game! Clica aí: https://charlesmendes.github.io/brcode/pix_validar_brcode_estatico.html
