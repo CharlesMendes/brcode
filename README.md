@@ -4,7 +4,7 @@ Geração, Leitura e Validação de QR Code no padrão BR Code para o Pix
 # TED ou DOC? Eu vou de Pix!
 
 ## Instruções
-Para usar é bem simples
+Para usar é bem simples e tem um montão de exemplo de QR Codes para você testar, aqui: https://github.com/CharlesMendes/brcode/blob/main/Exemplos_QR_Codes.txt
 
 ### Ta na mão, só usar
 Skin in the game! Clica aí: https://charlesmendes.github.io/brcode/pix_validar_brcode_estatico.html
