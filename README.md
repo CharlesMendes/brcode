@@ -7,6 +7,7 @@ Geração, Leitura e Validação de QR Code no padrão BR Code para o Pix
 Para usar é bem simples
 
 ### Ta na mão, só usar
+Skin in the game! Clica aí: https://charlesmendes.github.io/brcode/pix_validar_brcode_estatico.html
 
 ### Uso local
 Se preferir, pode usar localmente:
