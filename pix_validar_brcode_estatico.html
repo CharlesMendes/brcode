@@ -51,6 +51,7 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
         <script>
+            
             // DOCUMENTAÇÃO:
             // https://www.bcb.gov.br/content/estabilidadefinanceira/SiteAssets/Manual%20do%20BR%20Code.pdf
             // https://www.bcb.gov.br/content/estabilidadefinanceira/pix/Regulamento_Pix/II-ManualdePadroesparaIniciacaodoPix-versao2-1.pdf
@@ -68,6 +69,8 @@
             const DS_SUBMERCHANT_GUI = "(M) GUI Arranjo";
             const ID_SUBMERCHANT_CHAVE = "01"; // (M) Chave Pix
             const DS_SUBMERCHANT_CHAVE = "(M) Chave Pix";
+            const ID_SUBMERCHANT_INFOADICIONAL = "02"; // (O) Info Adicional
+            const DS_SUBMERCHANT_INFOADICIONAL = "(O) Info Adicional";
 
             const ID_MERCHANT_CATEGORY_CODE = "52"; // (M) Merchant Category Code
             const DS_MERCHANT_CATEGORY_CODE = "(M) Merchant Category Code";
@@ -93,14 +96,14 @@
             const DS_ADDITIONAL_DATA_FIELD_TEMPLATE = "(M) Additional Data Field Template";
 
             //SUB ADDITIONAL DATA FIELD TEMPLATE
-            const ID_SUBADDITIONAL_REFERENCE_LABEL = "05"; // (M) ID DA TRANSAÇÃO TRX
-            const DS_SUBADDITIONAL_REFERENCE_LABEL = "(M) ID DA TRANSAÇÃO TRX";
-            const ID_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM = "50"; // (M) PAYMENT SYSTEM TEMPLATE
-            const DS_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM = "(M) PAYMENT SYSTEM TEMPLATE";
-            const ID_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_GUI = "00"; // (M) GUI PAYMENT SYSTEM TEMPLATE
-            const DS_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_GUI = "(M) GUI PAYMENT SYSTEM TEMPLATE";
-            const ID_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_VERSAO = "01"; // (M) VERSAO PAYMENT SYSTEM TEMPLATE
-            const DS_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_VERSAO = "(M) VERSAO PAYMENT SYSTEM TEMPLATE";
+            const ID_SUBADDITIONAL_REFERENCE_LABEL = "05"; // (M) ID DA TRANSAÇÃO TXID
+            const DS_SUBADDITIONAL_REFERENCE_LABEL = "(M) ID DA TRANSAÇÃO TXID";
+            const ID_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM = "50"; // (O) PAYMENT SYSTEM TEMPLATE
+            const DS_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM = "(O) PAYMENT SYSTEM TEMPLATE";
+            const ID_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_GUI = "00"; // (O) GUI PAYMENT SYSTEM TEMPLATE
+            const DS_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_GUI = "(O) GUI PAYMENT SYSTEM TEMPLATE";
+            const ID_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_VERSAO = "01"; // (O) VERSAO PAYMENT SYSTEM TEMPLATE
+            const DS_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_VERSAO = "(O) VERSAO PAYMENT SYSTEM TEMPLATE";
             
             const ID_CRC = "63"; // (M) CRC
             const DS_CRC = "(M) CRC";
@@ -219,7 +222,8 @@
                         $("#subqrcode").val(valor);
                         consumerSubMessage(ID_SUBMERCHANT_GUI, DS_SUBMERCHANT_GUI, true);
                         consumerSubMessage(ID_SUBMERCHANT_CHAVE, DS_SUBMERCHANT_CHAVE, true);
-
+                        consumerSubMessage(ID_SUBMERCHANT_INFOADICIONAL, DS_SUBMERCHANT_INFOADICIONAL, false);
+                        
                         item ["valor"] = mapConsumers_sub;
 
                         initial_value_sub = 0;
@@ -229,7 +233,7 @@
                     {
                         $("#subqrcode").val(valor);
                         consumerSubMessage(ID_SUBADDITIONAL_REFERENCE_LABEL, DS_SUBADDITIONAL_REFERENCE_LABEL, true);
-                        consumerSubMessage(ID_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM, DS_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM, true);
+                        consumerSubMessage(ID_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM, DS_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM, false);
 
                         item ["valor"] = mapConsumers_sub;
 
@@ -255,7 +259,7 @@
                     {
                         item ["_id"] = identificator;
                         item ["descrição"] = description;
-                        item ["valor"] = "Campo Opcional, não preechido";
+                        item ["valor"] = "**** Campo Opcional => não preechido ****";
                         mapConsumers.push(item);
                     }
                 }
@@ -277,12 +281,12 @@
                     
                     item ["_id"] = identificator;
                     item ["descrição"] = description;
-
+                    
                     if (ID_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM == identificator) 
                     {
                         $("#subqrcode_payment").val(valor);
-                        consumerSubPaymentMessage(ID_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_GUI, DS_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_GUI, true);
-                        consumerSubPaymentMessage(ID_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_VERSAO, DS_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_VERSAO, true);
+                        consumerSubPaymentMessage(ID_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_GUI, DS_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_GUI, false);
+                        consumerSubPaymentMessage(ID_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_VERSAO, DS_SUBADDITIONAL_SUBREFERENCE_LABEL_PAYMENT_SYSTEM_VERSAO, false);
 
                         item ["valor"] = mapConsumers_payment_sub;
 
@@ -291,7 +295,20 @@
                     }
                     else
                     {
-                        item ["valor"] = valor;
+                        if (ID_SUBMERCHANT_GUI == identificator && valor.toLowerCase() != "br.gov.bcb.pix")
+                        {
+                            item ["valor"] = "**** ERRO NESSE CAMPO **** => NÃO INFORMADO ARRANJO 'br.gov.bcb.pix'";
+                            erros++;
+                        }
+                        else if (ID_SUBADDITIONAL_REFERENCE_LABEL == identificator && valor.trim() == "")
+                        {
+                            item ["valor"] = "**** ERRO NESSE CAMPO **** => TXID deve ter algum valor ou '***' caso não exista";
+                            erros++;
+                        }
+                        else
+                        {
+                            item ["valor"] = valor;
+                        }
                     }
                                        
                     mapConsumers_sub.push(item);
@@ -309,7 +326,7 @@
                     {
                         item ["_id"] = identificator;
                         item ["descrição"] = description;
-                        item ["valor"] = "Campo Opcional, não preechido";
+                        item ["valor"] = "**** Campo Opcional => não preechido ****";
                         mapConsumers_sub.push(item);
                     }
                 }
@@ -348,12 +365,12 @@
                     {
                         item ["_id"] = identificator;
                         item ["descrição"] = description;
-                        item ["valor"] = "Campo Opcional, não preechido";
+                        item ["valor"] = "**** Campo Opcional => não preechido ****";
                         mapConsumers_payment_sub.push(item);
                     }
                 }
             }
-
+            
         </script>
 
     </body>
