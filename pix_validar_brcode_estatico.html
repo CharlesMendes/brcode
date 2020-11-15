@@ -26,12 +26,12 @@
                     <textarea class="w3-input w3-border" rows="4" cols="50" placeholder="Pix Copia e Cola" id="qrcode">00020126470014br.gov.bcb.pix0125contato@charlesmendes.com52040000530398654040.075802BR5922CHARLES PEREIRA MENDES6009SAO PAULO62070503***6304DC64</textarea>
                     <input type="text" id="subqrcode" hidden>
                     <input type="text" id="subqrcode_payment" hidden>
-                    <p><button class="w3-button w3-green" onclick="validar()">Validar</button></p>
+                    <p><button class="w3-button w3-green" onclick="validar()">Validar</button>&nbsp;&nbsp;<button class="w3-button w3-amber" onclick="$('#qrcode').text('');">Limpar</button></p>
 
                     <center><div style="width: 500px" id="reader"></div></center>
             </div>
             <div class="w3-bar-block w3-main w3-white">
-                <center>versão v13.11.2020.(build 002) - by <a href="mailto:contato@charlesmendes.com">Charles Mendes</a></center>
+                <center>versão v15.11.2020.(build 001) - by <a href="mailto:contato@charlesmendes.com">Charles Mendes</a></center>
             </div>
             
 
@@ -160,6 +160,7 @@
                 mapConsumers_payment_sub = [];
                 qrcode_valor = "";
                 erros = 0;
+
             }
 
             function validar() {
@@ -216,6 +217,51 @@
                 {
                     return $("#subqrcode_payment").val().substr(initial, size);
                 }
+            }
+
+            function isEvp(value) {
+                
+                var regex = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+                var match = regex.exec(value);
+                
+                return match != null;
+
+            }
+
+            function isEmail(value) {
+                
+                var regex = /^([a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+(\.[a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+)*|"((([ \t]*\r\n)?[ \t]+)?([\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*(([ \t]*\r\n)?[ \t]+)?")@(([a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.)+([a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.?$/i;
+                var match = regex.exec(value);
+                
+                return match != null;
+
+            }
+
+            function isCPF(value) {
+                
+                var regex = /^[0-9]{11}$/i;
+                var match = regex.exec(value);
+                
+                return match != null;
+
+            }
+
+            function isCNPJ(value) {
+                
+                var regex = /^[0-9]{14}$/i;
+                var match = regex.exec(value);
+                
+                return match != null;
+
+            }
+
+            function isPhone(value) {
+                
+                var regex = /^\+[1-9][0-9]\d{1,14}$/i;
+                var match = regex.exec(value);
+                
+                return match != null;
+
             }
             
             function formatMessage(descricao, valor) {
@@ -275,7 +321,36 @@
                     {
                         item ["_id"] = identificator;
                         item ["descrição"] = description;
-                        item ["valor"] = "**** ERRO NESSE CAMPO **** => CAMPO INVÁLIDO OU NÃO INFORMADO";
+
+                        if (ID_PAYLOAD_FORMAT_INDICATOR == identificator) 
+                        {
+                            item ["valor"] = "**** ERRO NESSE CAMPO **** => DEVE SER FIXO '01'";
+                        }
+                        else if (ID_MERCHANT_CATEGORY_CODE == identificator) 
+                        {
+                            item ["valor"] = "**** ERRO NESSE CAMPO **** => MCC OBRIGATORIO: '0000' ou MCC ISO-18245";
+                        }
+                        else if (ID_TRANSACTION_CURRENCY == identificator) 
+                        {
+                            item ["valor"] = "**** ERRO NESSE CAMPO **** => '986' – BRL: real brasileiro - ISO-4217";
+                        }
+                        else if (ID_COUNTRY_CODE == identificator) 
+                        {
+                            item ["valor"] = "**** ERRO NESSE CAMPO **** => 'BR' – Código de país ISO-3166-1 alpha 2";
+                        }
+                        else if (ID_MERCHANT_NAME == identificator) 
+                        {
+                            item ["valor"] = "**** ERRO NESSE CAMPO **** => Nome do beneficiário/recebedor";
+                        }
+                        else if (ID_MERCHANT_CITY == identificator) 
+                        {
+                            item ["valor"] = "**** ERRO NESSE CAMPO **** => Cidade onde é efetuada a transação, padrão EMV-QRCPS-MPM. Em outros casos (por exemplo em transações online) pode ser utilizada a cidade da agência do recebedor ou a cidade-sede do recebedor";
+                        }
+                        else
+                        {
+                            item ["valor"] = "**** ERRO NESSE CAMPO **** => CAMPO INVÁLIDO OU NÃO INFORMADO ***";
+                        }
+
                         erros++;
                         mapConsumers.push(item);
                     }
@@ -283,7 +358,24 @@
                     {
                         item ["_id"] = identificator;
                         item ["descrição"] = description;
-                        item ["valor"] = "**** Campo Opcional => não preechido ****";
+
+                        if (ID_POINT_OF_INITIATION_METHOD == identificator) 
+                        {
+                            item ["valor"] = "**** Campo Opcional => não preechido: Se o valor 12 estiver presente, significa que o BR Code só pode ser utilizado uma vez.";
+                        }
+                        else if (ID_TRANSACTION_AMOUNT == identificator) 
+                        {
+                            item ["valor"] = "**** Campo Opcional => não preechido: valor da transação. Ex.: '0', '1.00', '123.99'";
+                        }
+                        else if (ID_POSTAL_CODE == identificator) 
+                        {
+                            item ["valor"] = "**** Campo Opcional => não preechido: CEP da localidade onde é efetuada a transação";
+                        }
+                        else
+                        {
+                            item ["valor"] = "**** Campo Opcional => não preechido ****";
+                        }
+
                         mapConsumers.push(item);
                     }
                 }
@@ -323,6 +415,28 @@
                         {
                             item ["valor"] = "**** ERRO NESSE CAMPO **** => NÃO INFORMADO ARRANJO 'br.gov.bcb.pix'";
                             erros++;
+                        }
+                        else if (ID_SUBMERCHANT_CHAVE == identificator)
+                        {
+                            item ["valor"] = valor;
+
+                            if (!isEmail(valor)) //não é chave e-mail
+                            {
+                                if (!isEvp(valor)) //não é chave evp
+                                {
+                                    if (!isCPF(valor)) //não é chave CPF
+                                    {
+                                        if (!isCNPJ(valor)) //não é chave CNPJ
+                                        {
+                                            if (!isPhone(valor)) //não é chave Celular
+                                            {
+                                                item ["valor"] = "**** ERRO NESSE CAMPO **** => CHAVE PIX INVÁLIDA: '" + valor + "'";
+                                                erros++;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                         else if (ID_SUBADDITIONAL_REFERENCE_LABEL == identificator && valor.trim() == "")
                         {
