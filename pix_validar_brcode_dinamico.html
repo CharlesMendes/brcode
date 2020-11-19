@@ -29,8 +29,8 @@
             <h2>
                 <img src="https://www.bcb.gov.br/content/estabilidadefinanceira/piximg/logo_pix.png" width="200px" /> Validar - BR Code</h2>
             <hr>
-            <p><label><i class="fa fa-calendar-check-o"></i> QR Code Estático</label></p>
-            <textarea class="w3-input w3-border" rows="4" cols="50" placeholder="Pix Copia e Cola" id="qrcode">00020126470014br.gov.bcb.pix0125contato@charlesmendes.com52040000530398654040.075802BR5922CHARLES PEREIRA MENDES6009SAO PAULO62070503***6304DC64</textarea>
+            <p><label><i class="fa fa-calendar-check-o"></i> QR Code Dinâmico</label></p>
+            <textarea class="w3-input w3-border" rows="4" cols="50" placeholder="Pix Copia e Cola" id="qrcode">00020101021226730014br.gov.bcb.pix2551pix.example.com/v2/8b3da2f39a4140d1a91abd93113bd4415204000053039865406123.455802BR5913Fulano de Tal6008BRASILIA62190515RP12345678-201963047309</textarea>
             <input type="text" id="subqrcode" hidden>
             <input type="text" id="subqrcode_payment" hidden>
             <p><button class="w3-button w3-green" onclick="validar()">Validar</button>&nbsp;&nbsp;<button class="w3-button w3-amber" onclick="$('#qrcode').text('');">Limpar</button></p>
@@ -102,8 +102,11 @@
         //SUB MERCHANT ACCOUNT INFORMATION
         const ID_SUBMERCHANT_GUI = "00"; // (M) GUI ARRANJO
         const DS_SUBMERCHANT_GUI = "(M) GUI Arranjo";
-        const ID_SUBMERCHANT_CHAVE = "01"; // (M) Chave Pix
-        const DS_SUBMERCHANT_CHAVE = "(M) Chave Pix";
+        const ID_SUBMERCHANT_CHAVE = "01"; // (O) Chave Pix
+        const DS_SUBMERCHANT_CHAVE = "(O) Chave Pix";
+        const ID_SUBMERCHANT_URL = "25"; // (M) URL Chave Endereçamento
+        const DS_SUBMERCHANT_URL = "(M) URL Chave Endereçamento";
+
         const ID_SUBMERCHANT_INFOADICIONAL = "02"; // (O) Info Adicional
         const DS_SUBMERCHANT_INFOADICIONAL = "(O) Info Adicional";
 
@@ -292,7 +295,7 @@
                 if (ID_MERCHANT_ACCOUNT_INFORMATION == identificator) {
                     $("#subqrcode").val(valor);
                     consumerSubMessage(ID_SUBMERCHANT_GUI, DS_SUBMERCHANT_GUI, true);
-                    consumerSubMessage(ID_SUBMERCHANT_CHAVE, DS_SUBMERCHANT_CHAVE, true);
+                    consumerSubMessage(ID_SUBMERCHANT_URL, DS_SUBMERCHANT_URL, true);
                     consumerSubMessage(ID_SUBMERCHANT_INFOADICIONAL, DS_SUBMERCHANT_INFOADICIONAL, false);
 
                     item["valor"] = mapConsumers_sub;
@@ -383,26 +386,9 @@
                     if (ID_SUBMERCHANT_GUI == identificator && valor.toLowerCase() != "br.gov.bcb.pix") {
                         item["valor"] = "**** ERRO NESSE CAMPO **** => NÃO INFORMADO ARRANJO 'br.gov.bcb.pix'";
                         erros++;
-                    } else if (ID_SUBMERCHANT_CHAVE == identificator) {
-                        item["valor"] = valor;
-
-                        if (!isEmail(valor)) //não é chave e-mail
-                        {
-                            if (!isEvp(valor)) //não é chave evp
-                            {
-                                if (!isCPF(valor)) //não é chave CPF
-                                {
-                                    if (!isCNPJ(valor)) //não é chave CNPJ
-                                    {
-                                        if (!isPhone(valor)) //não é chave Celular
-                                        {
-                                            item["valor"] = "**** ERRO NESSE CAMPO **** => CHAVE PIX INVÁLIDA: '" + valor + "'";
-                                            erros++;
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                    } else if (ID_SUBMERCHANT_URL == identificator && valor.toLowerCase() == "") {
+                        item["valor"] = "**** ERRO NESSE CAMPO **** => NÃO INFORMADO URL CHAVE ENDEREÇAMENTO";
+                        erros++;
                     } else if (ID_SUBADDITIONAL_REFERENCE_LABEL == identificator && valor.trim() == "") {
                         item["valor"] = "**** ERRO NESSE CAMPO **** => TXID deve ter algum valor ou '***' caso não exista";
                         erros++;

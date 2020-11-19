@@ -8,9 +8,15 @@ Para usar é bem simples e tem um montão de exemplo de QR Codes para você test
 Ah, é possível também ler um QR Code pela camera do Celular ou carregar a imagem salva direto do computador. SENSACIONAL, não?
 
 ### Ta na mão, só usar
-Skin in the game! Clica aí: https://charlesmendes.github.io/brcode/pix_validar_brcode_estatico.html
+Skin in the game! Clica aí: 
 
-### Uso local
+QR Code Estático:
+https://charlesmendes.github.io/brcode/pix_validar_brcode_estatico.html
+
+QR Code Dinâmico:
+https://charlesmendes.github.io/brcode/pix_validar_brcode_dinamico.html
+
+### Uso local - QR Code Estático
 Se preferir, pode usar localmente:
 1) Baixe o arquivo "https://github.com/CharlesMendes/brcode/blob/main/pix_validar_brcode_estatico.html"
 2) Abra o arquivo "pix_validar_brcode_estatico.html" em qualquer navegador (eu gosto do Chrome ❤❤❤)
@@ -20,6 +26,14 @@ Se preferir, pode usar localmente:
 ![alt text](img/tuto_2.png)
 ![alt text](img/tuto_3.png)
 ![alt text](img/br_code_pix.png)
+
+### Uso local - QR Code Dinâmico
+Se preferir, pode usar localmente:
+1) Baixe o arquivo "https://github.com/CharlesMendes/brcode/blob/main/pix_validar_brcode_dinamico.html"
+2) Abra o arquivo "pix_validar_brcode_dinamico.html" em qualquer navegador (eu gosto do Chrome ❤❤❤)
+3) Basta copiar e colar o conteúdo do QR Code e clicar em "Validar", que o resultado será exibido e se houver alguma inconsistência, será informado qual o problema identificado.
+
+![alt text](img/tuto_4.png)
 
 ## Documentação base
 Documentação disponível cópia na pasta "\docs\", abaixo o link original.
@@ -31,6 +45,10 @@ Documentação disponível cópia na pasta "\docs\", abaixo o link original.
 Excelentes projetos que me inspiraram:
 * https://github.com/dongri/emv-qrcode
 * https://github.com/mvallim/emv-qrcode
+
+## Contribuições
+
+* Daniel Leandro (https://github.com/daniel-leandro)
 
 ## Licença
 Totalmente LIVRE! Esse código foi construído para validação de QR Code no padrão BR Code, de forma independente. 
